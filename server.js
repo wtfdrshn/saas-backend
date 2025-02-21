@@ -23,6 +23,7 @@ const app = express();
 const corsOptions = {
   origin: [
     'https://eventlo.netlify.app',
+    'https://eventshub-saas.vercel.app',
     'http://localhost:3000' // Keep local development
   ],
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
