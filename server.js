@@ -19,16 +19,18 @@ dotenv.config({
 
 const app = express();
 
-// Configure CORS properly
-app.use(cors({
-  origin: ['http://localhost:5173', "https://evenhub.azurewebsites.net"], // Must match your frontend origin exactly
+// Configure CORS middleware
+const corsOptions = {
+  origin: [
+    'https://eventlo.netlify.app',
+    'http://localhost:3000' // Keep local development
+  ],
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-}));
+  optionsSuccessStatus: 204
+};
 
-// Handle preflight requests
-app.options('*', cors());
+app.use(cors(corsOptions));
 
 // Middleware
 app.use(express.json());
