@@ -10,6 +10,7 @@ const analyticsRoutes = require('./routes/analyticsRoutes');
 const userAnalyticsRoutes = require('./routes/userAnalyticsRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const worqhatapiRoutes = require('./routes/worqhatapiRoutes');
+const ticketRoutes = require('./routes/ticketRoutes');
 const subscriptionRoutes = require('./routes/subscriptionRoutes')
 
 dotenv.config({
@@ -82,6 +83,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/analytics/user', userAnalyticsRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/worqhat', worqhatapiRoutes);
+app.use('/api/tickets', ticketRoutes);
 app.use('/api/subscription', subscriptionRoutes)
 
 // Add error handling middleware
