@@ -21,7 +21,7 @@ const app = express();
 
 // Configure CORS properly
 app.use(cors({
-  origin: 'http://localhost:5173', // Must match your frontend origin exactly
+  origin: ['http://localhost:5173', 'https://evenhub.azurewebsites.net'], // Must match your frontend origin exactly
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
