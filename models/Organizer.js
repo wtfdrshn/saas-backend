@@ -70,6 +70,31 @@ const organizerSchema = new mongoose.Schema({
   otpExpiry: {
     type: Date,
     default: null
+  },
+  subscription: {
+    tier: {
+      type: String,
+      enum: ['free', 'pro'],
+      default: 'free'
+    },
+    status: {
+      type: String,
+      enum: ['active', 'expired', 'canceled'],
+      default: 'active'
+    },
+    eventLimit: {
+      type: Number,
+      default: 5
+    },
+    
+    startedAt: Date,
+    expiresAt: Date,
+    paymentId: String,
+    orderId: String
+  },
+  eventsCreated: {
+    type: Number,
+    default: 0
   }
 }, { 
   timestamps: true,

@@ -10,6 +10,7 @@ const analyticsRoutes = require('./routes/analyticsRoutes');
 const userAnalyticsRoutes = require('./routes/userAnalyticsRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const worqhatapiRoutes = require('./routes/worqhatapiRoutes');
+const subscriptionRoutes = require('./routes/subscriptionRoutes')
 
 dotenv.config({
   path: '.env'
@@ -17,8 +18,18 @@ dotenv.config({
 
 const app = express();
 
+// Configure CORS properly
+app.use(cors({
+  origin: 'http://localhost:5173', // Must match your frontend origin exactly
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+
+// Handle preflight requests
+app.options('*', cors());
+
 // Middleware
-app.use(cors());
 app.use(express.json());
 
 // MongoDB connection with enhanced retry logic and better error handling
@@ -71,6 +82,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/analytics/user', userAnalyticsRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/worqhat', worqhatapiRoutes);
+app.use('/api/subscription', subscriptionRoutes)
 
 // Add error handling middleware
 app.use((err, req, res, next) => {

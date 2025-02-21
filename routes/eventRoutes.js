@@ -12,6 +12,7 @@ const {
   updateEventStatus,
   getOrganizerEvents
 } = require('../controllers/eventController');
+const { checkEventLimit } = require('../middleware/subscription.js');
 
 // Configure multer for file uploads
 const upload = multer({
@@ -39,7 +40,7 @@ router.get('/organizer', protect, getOrganizerEvents);
 router.get('/:id', getEvent);
 
 // Protected routes (authentication required)
-router.post('/', protect, uploadFields, createEvent);
+router.post('/', protect, checkEventLimit, uploadFields, createEvent);
 router.put('/:id', protect, uploadFields, updateEvent);
 router.delete('/:id', protect, deleteEvent);
 router.get('/:eventId/analytics', protect, getEventAnalytics);

@@ -2,9 +2,20 @@ const Event = require('../models/Event');
 const { uploadToCloudinary } = require('../utils/cloudinary');
 const Ticket = require('../models/Ticket');
 const mongoose = require('mongoose');
+const Organizer = require('../models/Organizer');
 
 const createEvent = async (req, res) => {
   try {
+    const organizer = await Organizer.findById(req.user.id);
+    
+    // Check subscription limits
+    if (organizer.subscription.tier === 'free' && 
+        organizer.eventsCreated >= organizer.subscription.eventLimit) {
+      return res.status(403).json({
+        message: 'Free tier limit reached. Upgrade to create more events.'
+      });
+    }
+
     const eventData = {
       ...req.body,
       organizer: req.user.id,
@@ -25,6 +36,10 @@ const createEvent = async (req, res) => {
 
     const event = new Event(eventData);
     await event.save();
+
+    // Increment events created count
+    organizer.eventsCreated += 1;
+    await organizer.save();
 
     res.status(201).json(event);
   } catch (error) {
@@ -105,20 +120,52 @@ const getEvent = async (req, res) => {
 
 const updateEvent = async (req, res) => {
   try {
-    const event = await Event.findByIdAndUpdate(
-      req.params.id,
-      { ...req.body, organizer: req.user.id },
-      { new: true }
-    );
-    res.json(event);
+    const event = await Event.findById(req.params.id);
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    // Update fields manually to handle nested objects
+    const updates = Object.keys(req.body);
+    updates.forEach(update => {
+      // Special handling for attendance subdocument
+      if (update === 'attendance') {
+        event.attendance = req.body.attendance ? 
+          JSON.parse(req.body.attendance) : 
+          { currentCount: 0, checkedInAttendees: [], history: [] };
+      } else {
+        event[update] = req.body[update];
+      }
+    });
+
+    // Handle image updates if needed
+    if (req.files) {
+      if (req.files.bannerImage) {
+        const bannerResult = await uploadToCloudinary(req.files.bannerImage[0].path);
+        event.bannerImage = bannerResult.secure_url;
+      }
+      if (req.files.coverImage) {
+        const coverResult = await uploadToCloudinary(req.files.coverImage[0].path);
+        event.coverImage = coverResult.secure_url;
+      }
+    }
+
+    const updatedEvent = await event.save();
+    res.json(updatedEvent);
   } catch (error) {
     console.error('Error updating event:', error);
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ 
+      message: error.message,
+      error: process.env.NODE_ENV === 'development' ? error : undefined
+    });
   }
 };
 
 const deleteEvent = async (req, res) => {
   try {
+
+    const organizer = await Organizer.findById(req.user.id);
+
     // Add validation for user and event ID
     if (!req.user || !req.user.id) {
       return res.status(401).json({ message: 'User not authenticated' });
@@ -144,6 +191,10 @@ const deleteEvent = async (req, res) => {
         message: 'Event not found or you are not authorized to delete this event' 
       });
     }
+
+        // Decrement events created count
+        organizer.eventsCreated -= 1;
+        await organizer.save();
 
     // Delete associated tickets (if any)
     await Ticket.deleteMany({ event: req.params.id });

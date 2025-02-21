@@ -58,7 +58,11 @@ const getOrganizerProfile = async (req, res) => {
     if (!organizer) {
       return res.status(404).json({ message: 'Organizer not found' });
     }
-    res.json(organizer);
+    res.json({
+      organizer,
+      subscription: organizer.subscription || { tier: 'free', status: 'active' },
+      remainingEvents: organizer.subscription?.eventLimit - organizer.eventsCreated || 3 - organizer.eventsCreated
+    });
   } catch (error) {
     console.error('Error in getOrganizerProfile:', error);
     res.status(500).json({ message: 'Error fetching organizer profile' });
