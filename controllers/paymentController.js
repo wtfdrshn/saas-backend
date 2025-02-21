@@ -7,10 +7,15 @@ const mongoose = require('mongoose');
 // Create Razorpay order
 const createOrder = async (req, res) => {
   try {
-    const { eventId, quantity } = req.body;
+    // Destructure from request body correctly
+    // const eventId = req.body;
+    const { eventId, quantity } = req.body;;
+    // console.log(data)
     const userId = req.user.id;
     
-    // Fetch event details
+
+
+    // Fetch event details with proper ID casting
     const event = await Event.findById(eventId);
     if (!event) {
       return res.status(404).json({ message: 'Event not found' });
@@ -111,20 +116,22 @@ const verifyPayment = async (req, res) => {
       return res.status(400).json({ message: 'Not enough tickets available' });
     }
 
-    // Create tickets
-    const tickets = [];
-    for (let i = 0; i < quantity; i++) {
-      const ticket = new Ticket({
-        user: userId,
-        event: eventId,
-        price: event.ticketPrice,
-        paymentId: razorpay_payment_id,
-        orderId: razorpay_order_id,
-        status: 'confirmed'
-      });
-      await ticket.save({ session });
-      tickets.push(ticket);
-    }
+    // Create ticket (single document with quantity)
+    const ticket = await Ticket.create([{
+      user: userId,
+      event: eventId,
+      quantity,
+      totalAmount: event.price * quantity,
+      paymentId: razorpay_payment_id,
+      orderId: razorpay_order_id,
+      status: 'confirmed',
+      isValid: true,
+      checkInStatus: {
+        isCheckedIn: false,
+        checkInTime: null,
+        checkOutTime: null
+      }
+    }], { session });
 
     // Update event ticket count
     event.availableTickets -= quantity;
@@ -135,8 +142,8 @@ const verifyPayment = async (req, res) => {
     
     res.json({
       success: true,
-      message: 'Payment verified and tickets created',
-      tickets: tickets.map(t => t._id),
+      message: 'Payment verified and ticket created',
+      ticket: ticket[0]._id,
       paymentId: razorpay_payment_id
     });
 

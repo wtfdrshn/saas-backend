@@ -1,5 +1,7 @@
 const { Resend } = require('resend');
-const resend = new Resend(process.env.RESEND_API_KEY);
+
+const resend = new Resend('re_ABNa2CNc_GUCQv8JUTDWkHVtfnm6nnNKz');
+
 
 const sendEmail = async ({ to, subject, text }) => {
   try {
