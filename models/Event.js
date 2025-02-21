@@ -99,10 +99,9 @@ const eventSchema = new mongoose.Schema({
   location: {
     type: String,
     required: [
-      function() { return this.type !== 'virtual'; },
-      'Location is required for physical and hybrid events'
-    ],
-    trim: true
+      function() { return this.type !== 'virtual' },
+      'Physical location is required for non-virtual events'
+    ]
   },
   virtualLink: {
     type: String,
@@ -154,13 +153,7 @@ const eventSchema = new mongoose.Schema({
   tags: [{
     type: String,
     trim: true,
-    lowercase: true,
-    validate: {
-      validator: function(value) {
-        return value.length >= 2 && value.length <= 20;
-      },
-      message: 'Tags must be between 2 and 20 characters long'
-    }
+    lowercase: true,  
   }],
 
   // Active Status
@@ -192,6 +185,8 @@ const eventSchema = new mongoose.Schema({
 
   // Attendance
   attendance: {
+    default: null,
+    required: false,
     type: attendanceSchema,
     default: () => ({
       currentCount: 0,

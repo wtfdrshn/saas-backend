@@ -105,43 +105,11 @@ const getEvent = async (req, res) => {
 
 const updateEvent = async (req, res) => {
   try {
-    const updates = { ...req.body };
-    
-    // Handle virtualLink for physical events
-    if (updates.type === 'physical') {
-      updates.virtualLink = undefined; // Remove virtualLink for physical events
-    }
-    
-    // Remove organizer from updates to prevent modification
-    delete updates.organizer;
-    
-    // Process tags if they exist
-    if (updates.tags) {
-      updates.tags = updates.tags.split(',').map(tag => tag.trim());
-    }
-
-    // Handle image uploads
-    if (req.files) {
-      if (req.files.bannerImage) {
-        const bannerResult = await uploadToCloudinary(req.files.bannerImage[0].path);
-        updates.bannerImage = bannerResult.secure_url;
-      }
-      if (req.files.coverImage) {
-        const coverResult = await uploadToCloudinary(req.files.coverImage[0].path);
-        updates.coverImage = coverResult.secure_url;
-      }
-    }
-
-    const event = await Event.findOneAndUpdate(
-      { _id: req.params.id, organizer: req.user.id },
-      updates,
-      { new: true, runValidators: true }
+    const event = await Event.findByIdAndUpdate(
+      req.params.id,
+      { ...req.body, organizer: req.user.id },
+      { new: true }
     );
-
-    if (!event) {
-      return res.status(404).json({ message: 'Event not found' });
-    }
-
     res.json(event);
   } catch (error) {
     console.error('Error updating event:', error);
