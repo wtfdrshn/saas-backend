@@ -43,6 +43,8 @@ const getOrganizerTickets = async (req, res) => {
         const tickets = await ConcernTicket.find({ organizerId: req.user.id })
             .populate("userId", "name email")
             .populate("eventId", "title");
+        console.log("Tickets: ", tickets);
+        
         res.status(200).json({ success: true, tickets });
     } catch (error) {
         res.status(500).json({ success: false, message: "Error fetching tickets", error });
