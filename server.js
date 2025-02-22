@@ -19,19 +19,13 @@ dotenv.config({
 
 const app = express();
 
-// Configure CORS middleware
-const corsOptions = {
+app.use(cors({
   origin: [
-    'https://eventlo.netlify.app',
-    'https://eventshub-saas.vercel.app',
-    'http://localhost:3000' // Keep local development
+  'http://localhost:5173', 
+  'https://eventlo.netlify.app',
   ],
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true,
-  optionsSuccessStatus: 204
-};
-
-app.use(cors(corsOptions));
+  credentials: true
+}));
 
 // Middleware
 app.use(express.json());
