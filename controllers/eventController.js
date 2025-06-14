@@ -4,7 +4,7 @@ const Ticket = require('../models/Ticket');
 const mongoose = require('mongoose');
 const Organizer = require('../models/Organizer');
 
-const createEvent = async (req, res) => {
+const   createEvent = async (req, res) => {
   try {
     const organizer = await Organizer.findById(req.user.id);
     
