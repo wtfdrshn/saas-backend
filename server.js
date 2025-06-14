@@ -72,6 +72,13 @@ process.on('SIGINT', async () => {
 });
 
 // Routes
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Welcome to the Event Management API',
+    version: '1.0.0',
+  });
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/profile', profileRoutes);
